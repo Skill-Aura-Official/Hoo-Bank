@@ -100,10 +100,9 @@ const Dashboard = () => {
         }
 
         const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("id");
 
         try {
-            const res = await axios.post(
+            await axios.post(
                 `${API}/account/makeTransaction`,
                 {
                     fromAccountId,

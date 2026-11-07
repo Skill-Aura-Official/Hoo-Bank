@@ -12,7 +12,7 @@ app.get('/', (req, res)=>{
 
 connectDB()
 .then(()=>{
-    const PORT = process.env.PORT || PORT;
+    const PORT = process.env.PORT || 8000;
     app.listen(PORT, ()=>{
         console.log(`server is running on port ${PORT}`)
     })

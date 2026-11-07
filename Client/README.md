@@ -15,7 +15,7 @@ npm run dev
 
 Vite normally serves `http://localhost:5173`; inspect the printed URL. `src/ApiUri.js` currently sets the API to `http://localhost:8000/api/v1`. It is a source constant, not an environment-variable override. A separately configured `Server` process must match it; server CORS currently permits localhost:5173 only.
 
-The server needs MongoDB and `MONGODB_URI`, `ACCESS_TOKEN_SECRET` and an explicit `PORT=8000` supplied privately. Its index has a self-referencing fallback for PORT, so do not omit PORT. Startup scripts preload `.env`, while index.js additionally looks for `./env`; inspect both configuration paths rather than assuming defaults. No account or credential is supplied here. Registration/login uses the backend, and reCAPTCHA configuration must be valid for the intended domain. Preserve existing data and do not test with real financial information.
+The server needs MongoDB, `MONGODB_URI` and `ACCESS_TOKEN_SECRET` supplied privately. Its default port is `8000`, matching the client API constant. If you set `PORT`, update the client API origin to match. Startup scripts preload `.env`, while index.js additionally looks for `./env`. Registration and login require backend and reCAPTCHA configuration for the intended domain. Use test data for verification.
 
 ## Checks and limits
 
@@ -31,4 +31,4 @@ If login fails, verify backend health, the fixed API origin and cookie/CORS beha
 
 ## Documentation review checks (2026-11-07)
 
-Clean installation (lifecycle scripts disabled) and client build passed on Node 24.3.0. Lint reported two existing unused-variable errors in Dashboard.jsx. Backend workflows remain unverified.
+Client build and lint passed on Node 24.3.0. The server entry point passed a syntax check after correcting its default port. Backend workflows remain unverified.
