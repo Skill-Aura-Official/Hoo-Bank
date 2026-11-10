@@ -17,7 +17,7 @@ export const transferMoney = async (req, res) => {
       return res.status(400).json({ message: "Amount must be positive" });
     }
 
-    const senderAccount = await Account.findById(fromAccountId);
+    const senderAccount = await Account.findOne({ _id: fromAccountId, userId: req.user._id });
     if (!senderAccount) {
       return res.status(404).json({ message: "Sender account not found" });
     }
@@ -91,6 +91,9 @@ export const transferMoney = async (req, res) => {
 export const getUserTransactions = async (req, res) => {
   try {
     const userId = req.params.userId;
+    if (userId !== req.user._id.toString()) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     // Get all account IDs for this user
     const accounts = await Account.find({ userId });
@@ -116,7 +119,10 @@ export const downloadStatementPDF = async (req, res) => {
   try {
     const { accountId } = req.params;
 
-    console.log('📥 Route hit with accountId:', accountId);
+    const account = await Account.exists({ _id: accountId, userId: req.user._id });
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
 
     // ✅ Query transfers (limit added for safety)
     const transfers = await Transfer.find({ senderAccount: accountId })

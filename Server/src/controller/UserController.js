@@ -67,13 +67,17 @@ const LOCK_TIME_MINUTES = 15;
 
 export const loginUser = async (req, res) => {
   const { accountNumber, password, captchaToken } = req.body;
+  const captchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!captchaSecret) {
+    return res.status(503).json({ message: 'CAPTCHA verification is unavailable' });
+  }
 
   // ✅ Verify reCAPTCHA token
   try {
     const captchaRes = await axios.post(
       "https://www.google.com/recaptcha/api/siteverify",
       new URLSearchParams({
-        secret: "6LcbjHsrAAAAAJQjQyZ3BwnL2iwLza1bqYD19d6A", // ✅ Secret key
+        secret: captchaSecret,
         response: captchaToken,
       })
     );
@@ -132,8 +136,8 @@ export const logoutUser = (req, res) => {
 export const getUserProfile = async (req, res) => {
   const { id } = req.params;
 
-  if (!id) {
-    return res.status(400).json({ message: "User ID is required" });
+  if (id !== req.user._id.toString()) {
+    return res.status(404).json({ message: 'User not found' });
   }
 
   try {
@@ -163,10 +167,6 @@ export const updateUserProfile = async (req, res) => {
     }
 
 
-    if (fullName) user.fullName = fullName;
-    if (email) user.email = email;
-
-
     if (email && email !== user.email) {
       const existingEmail = await User.findOne({ email });
       if (existingEmail && existingEmail._id.toString() !== user._id.toString()) {
@@ -174,6 +174,8 @@ export const updateUserProfile = async (req, res) => {
       }
     }
 
+    if (fullName) user.fullName = fullName;
+    if (email) user.email = email;
     const updatedUser = await user.save();
 
     res.status(200).json({
@@ -187,6 +189,9 @@ export const updateUserProfile = async (req, res) => {
       }
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: 'Email is already in use' });
+    }
     console.error('Update profile error:', error.message);
     res.status(500).json({ message: 'Internal server error' });
   }

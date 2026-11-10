@@ -15,7 +15,7 @@ npm run dev
 
 Vite normally serves `http://localhost:5173`; inspect the printed URL. `src/ApiUri.js` currently sets the API to `http://localhost:8000/api/v1`. It is a source constant, not an environment-variable override. A separately configured `Server` process must match it; server CORS currently permits localhost:5173 only.
 
-The server needs MongoDB, `MONGODB_URI` and `ACCESS_TOKEN_SECRET` supplied privately. Its default port is `8000`, matching the client API constant. If you set `PORT`, update the client API origin to match. Startup scripts preload `.env`, while index.js additionally looks for `./env`. Registration and login require backend and reCAPTCHA configuration for the intended domain. Use test data for verification.
+The server needs MongoDB, `MONGODB_URI` and `ACCESS_TOKEN_SECRET` supplied privately. From `Server`, run `npm ci` and `npm start`. The default port is `8000`, matching the client API constant. If you set `PORT`, update the client API origin to match. Startup scripts preload `.env`, while `src/index.js` also looks for `./env`. Login requires `RECAPTCHA_SECRET_KEY` on the server and a corresponding browser site key for the intended domain. Login returns 503 when the server secret is missing. Use test data for verification.
 
 ## Checks and limits
 
@@ -25,7 +25,7 @@ npm run lint
 npm run preview
 ```
 
-The package has no automated test script. These frontend checks do not verify backend authentication, transaction behavior or security. MongoDB, reCAPTCHA and authenticated dashboard operations were not exercised in this documentation review. A default Vite preview uses port 4173 and is not a production server; the backend's fixed CORS policy may need a reviewed change for that origin.
+The client package has no automated test script. Use disposable MongoDB data to check that profile edits persist, duplicate email changes return 409, and a second signed-in test account cannot read another account or download its statements. A default Vite preview uses port 4173 and the backend CORS policy only permits the configured development origin.
 
 If login fails, verify backend health, the fixed API origin and cookie/CORS behavior. Do not reset existing accounts to make a test pass. No root licence file exists in the reviewed fork; this README does not invent or change a licence. Existing package notices remain unchanged.
 

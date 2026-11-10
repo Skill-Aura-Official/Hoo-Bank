@@ -4,6 +4,9 @@ import CreditCard from "../models/CreditCard.js";
 export const getUserAccounts = async (req, res) => {
   try {
     const {userId} = req.params;
+    if (userId !== req.user._id.toString()) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     const accounts = await Account.find({ userId }).select('-__v');
 
